@@ -90,7 +90,7 @@ class VideoResponse {
 var session = new Session();
 var timeouts = new Timeouts();
 var APPLICATION_VERSION = "103";
-var host_url = (window.location.hostname == "localhost") ? "/youtubetimelinejs/youtubetimeline/" : "/";
+var host_url = (window.location.hostname == "localhost") ? "/youtubetimelinejs/youtubetimeline/" : "/youtubetimeline/";
 var apiKey = "AIzaSyD7qhxl1x67T5l8itG9jGZ4Oa69gBeVurw";
 
 function submitUsername() {

@@ -1,15 +1,15 @@
 <?php
 $compile = TRUE;
 $compile_pages = array(
-    "Home" => "index",
-    "About" => "about"
+    "Home" => array("filename" => "home", "compile" => "index"),
+    "About" => array("filename" => "about", "compile" => "about")
 );
-foreach ($compile_pages as $page_name => $page_filename) {
+foreach ($compile_pages as $page_name => $filenames) {
     ob_start();
-    include($page_filename.".php");
-    $outfile = fopen($page_filename.".html", "w") or die("Compile failed: access denied.");
+    include($filenames["filename"].".php");
+    $outfile = fopen($filenames["compile"].".html", "w") or die("Compile failed: access denied.");
     fwrite($outfile, ob_get_contents());
     fclose($outfile);
     ob_end_clean();
-    echo "Compiled page ".$page_filename.".php\n";
+    echo "Compiled page ".$filenames["filename"].".php to ".$filenames["compile"].".html\n";
 }

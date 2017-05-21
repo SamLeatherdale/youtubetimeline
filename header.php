@@ -3,13 +3,13 @@ if (empty($compile)) {
     $compile = FALSE;
 }
 $applicationVersion = 103;
-$hosted_url = "http://youtubetimeline.com";
+$hosted_url = "https://samleatherdale.github.io/youtubetimeline";
 $local_url = "/youtubetimeline/source";
 $site_description = "View the entire history of any YouTube channel without scrolling forever.";
 $opengraph_image = "http://youtubetimeline.com/icon/opengraph-icon.png";
 $local_mode = (!$compile && ($_SERVER["HTTP_HOST"] == "localhost"));
 $site_url = ($local_mode) ? $local_url : $hosted_url;
-$resource_url = ($local_mode) ? "/youtubetimelinejs/youtubetimeline/" : "/";
+$resource_url = ($local_mode) ? "/youtubetimelinejs/youtubetimeline/" : "/youtubetimeline/";
 $extension = ($compile) ? ".html" : ".php";
 $menu_items = array(
     "Home" => (object) [
