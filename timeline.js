@@ -113,6 +113,16 @@ var Channel = (function () {
     }
     return Channel;
 }());
+var SearchChannel = (function () {
+    function SearchChannel() {
+    }
+    return SearchChannel;
+}());
+var SearchChannelId = (function () {
+    function SearchChannelId() {
+    }
+    return SearchChannelId;
+}());
 var Snippet = (function () {
     function Snippet() {
     }
@@ -252,45 +262,46 @@ function searchChannels(search_term, auto_hide_show) {
     });
 }
 function displayChannelSearchResults(channels) {
-    var channel_data = [];
+    var channel_data;
+    var channel_ids = [];
     $.each(channels, function (i, channel) {
-        $.get("https://www.googleapis.com/youtube/v3/channels", {
-            part: 'snippet,statistics',
-            id: channel.id,
-            key: apiKey
-        }, function (data) {
-            channel_data.push(channel.items[0]);
+        channel_ids.push(channel.id.channelId);
+    });
+    $.get("https://www.googleapis.com/youtube/v3/channels", {
+        part: 'snippet,statistics',
+        id: channel_ids.join(","),
+        key: apiKey
+    }, function (data) {
+        channel_data = data.items;
+        channel_data.sort(function (a, b) {
+            if (parseInt(a.statistics.subscriberCount) > parseInt(b.statistics.subscriberCount)) {
+                return -1;
+            }
+            else if (parseInt(a.statistics.subscriberCount) < parseInt(b.statistics.subscriberCount)) {
+                return 1;
+            }
+            return 0;
         });
-    });
-    console.log(channel_data);
-    channel_data.sort(function (a, b) {
-        if (a.statistics.subscriberCount > b.statistics.subscriberCount) {
-            return 1;
-        }
-        else if (a.statistics.subscriberCount < b.statistics.subscriberCount) {
-            return -1;
-        }
-        return 0;
-    });
-    $.each(channel_data, function (i, channel) {
-        var subscribers = "";
-        var subscriberClass = "";
-        var videoClass = "";
-        if (channel.statistics.hiddenSubscriberCount === true) {
-            subscribers = "Private";
-            subscriberClass = " invert-yt-red";
-        }
-        else {
-            subscribers = addCommas(channel.statistics.subscriberCount.toString());
-        }
-        if (channel.statistics.videoCount === 0) {
-            videoClass = " invert-yt-red";
-        }
-        var set_active = "";
-        if (session.channelId === channel.id) {
-            set_active = " active";
-        }
-        $("#channel_result_container").append("<div class=\"channel-result button-result\" data-channel-ID=\"" + channel.id + "\">\n                <a class=\"btn btn-default " + set_active + "\" href=\"#\">\n                    <img src=\"" + channel.snippet.thumbnails.medium.url + "\" />\n                    <div class=\"button-result-info-box\">\n                        <div class=\"button-result-info-wrapper\" >\n                            <div class=\"button-result-title smart-break\">" + channel.snippet.title + "</div>\n                            <div class=\"channel-result-badge-container\">\n                                <span class=\"channel-result-subscribers badge " + subscriberClass + "\" data-subscribers=\"" + channel.statistics.subscriberCount + "\">" + subscribers + "</span>\n                                <br />\n                                <span class=\"channel-result-videos badge " + videoClass + "\">" + addCommas(channel.statistics.videoCount) + "</span>\n                            </div>\n                        </div>\n                    </div>\n                </a>\n            </div>");
+        $.each(channel_data, function (i, channel) {
+            var subscribers = "";
+            var subscriberClass = "";
+            var videoClass = "";
+            if (channel.statistics.hiddenSubscriberCount === true) {
+                subscribers = "Private";
+                subscriberClass = " invert-yt-red";
+            }
+            else {
+                subscribers = addCommas(channel.statistics.subscriberCount.toString());
+            }
+            if (channel.statistics.videoCount === "0") {
+                videoClass = " invert-yt-red";
+            }
+            var set_active = "";
+            if (session.channelId === channel.id) {
+                set_active = " active";
+            }
+            $("#channel_result_container").append("<div class=\"channel-result button-result\" data-channel-ID=\"" + channel.id + "\">\n                        <a class=\"btn btn-default " + set_active + "\" href=\"#\">\n                            <img src=\"" + channel.snippet.thumbnails.medium.url + "\" />\n                            <div class=\"button-result-info-box\">\n                                <div class=\"button-result-info-wrapper\" >\n                                    <div class=\"button-result-title smart-break\">" + channel.snippet.title + "</div>\n                                    <div class=\"channel-result-badge-container\">\n                                        <span class=\"channel-result-subscribers badge " + subscriberClass + "\" data-subscribers=\"" + channel.statistics.subscriberCount + "\">" + subscribers + "</span>\n                                        <br />\n                                        <span class=\"channel-result-videos badge " + videoClass + "\">" + addCommas(channel.statistics.videoCount) + "</span>\n                                    </div>\n                                </div>\n                            </div>\n                        </a>\n                    </div>");
+        });
     });
     $(".channel-result a").click(SelectChannel);
 }
@@ -306,7 +317,6 @@ function processChannel(channelID, customURL) {
             return;
         }
         var channel = data.items[0];
-        console.log(channel);
         var subscribers = "";
         if (channel.statistics.hiddenSubscriberCount === true) {
             subscribers = "Private";

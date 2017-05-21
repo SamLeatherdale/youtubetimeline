@@ -50,6 +50,13 @@ class Channel {
     //For vanity URL
     username: string;
 }
+class SearchChannel {
+    id: SearchChannelId;
+}
+class SearchChannelId {
+    kind: string;
+    channelId: string;
+}
 class Snippet {
     publishedAt: string;
     title: string;
@@ -62,9 +69,9 @@ class Thumbnail {
     url: string;
 }
 class Statistics {
-    subscriberCount: number;
+    subscriberCount: string;
     hiddenSubscriberCount: boolean;
-    videoCount: number;
+    videoCount: string;
 }
 class Video {
     id: VideoId;
@@ -208,70 +215,72 @@ function searchChannels(search_term: string, auto_hide_show: boolean) {
     });
 }
 
-function displayChannelSearchResults(channels) {
-    let channel_data : Channel[] = [];
+function displayChannelSearchResults(channels: SearchChannel[]) {
+    let channel_data : Channel[];
+    let channel_ids: string[] = [];
     $.each(channels, function(i, channel) {
-        $.get(
-            "https://www.googleapis.com/youtube/v3/channels",
-            {
-                part : 'snippet,statistics',
-                id : channel.id,
-                key: apiKey
-            },
-            function(data) {
-                channel_data.push(channel.items[0]);
-            }
-        );
+        channel_ids.push(channel.id.channelId);
     });
-    console.log(channel_data);
+    $.get(
+        "https://www.googleapis.com/youtube/v3/channels",
+        {
+            part : 'snippet,statistics',
+            id : channel_ids.join(","),
+            key: apiKey
+        },
+        function(data) {
+            channel_data = data.items;
 
-    channel_data.sort(function(a, b) {
-        if (a.statistics.subscriberCount > b.statistics.subscriberCount) {
-            return 1;
-        }
-        else if (a.statistics.subscriberCount < b.statistics.subscriberCount) {
-            return -1;
-        }
-        return 0;
-    });
+            channel_data.sort(function(a, b) {
+                if (parseInt(a.statistics.subscriberCount) > parseInt(b.statistics.subscriberCount)) {
+                    return -1;
+                }
+                else if (parseInt(a.statistics.subscriberCount) < parseInt(b.statistics.subscriberCount)) {
+                    return 1;
+                }
+                return 0;
+            });
 
-    $.each(channel_data, function(i, channel) {
-        let subscribers = "";
-        let subscriberClass = "";
-        let videoClass = "";
-        if (channel.statistics.hiddenSubscriberCount === true) {
-            subscribers = "Private";
-            subscriberClass = " invert-yt-red";
-        }
-        else {
-            subscribers = addCommas(channel.statistics.subscriberCount.toString());
-        }
-        if (channel.statistics.videoCount === 0) {
-            videoClass = " invert-yt-red";
-        }
-        //Display element
-        let set_active = "";
-        if (session.channelId === channel.id) {
-            set_active = " active";
-        }
-        $("#channel_result_container").append(
-            `<div class="channel-result button-result" data-channel-ID="${channel.id}">
-                <a class="btn btn-default ${set_active}" href="#">
-                    <img src="${channel.snippet.thumbnails.medium.url}" />
-                    <div class="button-result-info-box">
-                        <div class="button-result-info-wrapper" >
-                            <div class="button-result-title smart-break">${channel.snippet.title}</div>
-                            <div class="channel-result-badge-container">
-                                <span class="channel-result-subscribers badge ${ subscriberClass}" data-subscribers="${channel.statistics.subscriberCount}">${subscribers}</span>
-                                <br />
-                                <span class="channel-result-videos badge ${ videoClass}">${addCommas(channel.statistics.videoCount)}</span>
+            $.each(channel_data, function(i, channel) {
+                let subscribers = "";
+                let subscriberClass = "";
+                let videoClass = "";
+                if (channel.statistics.hiddenSubscriberCount === true) {
+                    subscribers = "Private";
+                    subscriberClass = " invert-yt-red";
+                }
+                else {
+                    subscribers = addCommas(channel.statistics.subscriberCount.toString());
+                }
+                if (channel.statistics.videoCount === "0") {
+                    videoClass = " invert-yt-red";
+                }
+                //Display element
+                let set_active = "";
+                if (session.channelId === channel.id) {
+                    set_active = " active";
+                }
+                $("#channel_result_container").append(
+                    `<div class="channel-result button-result" data-channel-ID="${channel.id}">
+                        <a class="btn btn-default ${set_active}" href="#">
+                            <img src="${channel.snippet.thumbnails.medium.url}" />
+                            <div class="button-result-info-box">
+                                <div class="button-result-info-wrapper" >
+                                    <div class="button-result-title smart-break">${channel.snippet.title}</div>
+                                    <div class="channel-result-badge-container">
+                                        <span class="channel-result-subscribers badge ${ subscriberClass}" data-subscribers="${channel.statistics.subscriberCount}">${subscribers}</span>
+                                        <br />
+                                        <span class="channel-result-videos badge ${ videoClass}">${addCommas(channel.statistics.videoCount)}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </a>
-            </div>`
-        );
-    });
+                        </a>
+                    </div>`
+                );
+            });
+        }
+    );
+
 
     $(".channel-result a").click(SelectChannel);
 }
@@ -291,7 +300,6 @@ function processChannel(channelID: string, customURL: boolean) {
                 return;
             }
             let channel: Channel = data.items[0];
-            console.log(channel);
             let subscribers = "";
             if (channel.statistics.hiddenSubscriberCount === true) {
                 subscribers = "Private";

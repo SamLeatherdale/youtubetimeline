@@ -13,9 +13,10 @@ RewriteRule ^about about.html [NC,L]
 
 RewriteCond "%{HTTP_HOST}" "!localhost"
 # If not local, skip next block
-RewriteRule .* - [S=3]
-RewriteRule ^channel index.php [NC,L]
-RewriteRule ^user index.php [NC,L]
+RewriteRule .* - [S=4]
+RewriteRule ^$ home.php [NC,L]
+RewriteRule ^channel home.php [NC,L]
+RewriteRule ^user home.php [NC,L]
 RewriteRule ^about about.php [NC,L]
 
 # General settings
