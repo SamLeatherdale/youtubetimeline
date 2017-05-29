@@ -123,13 +123,6 @@ function onShowMonth() {
 
     //Store that this month is open
     session.replaceState({ month: true });
-    // if (session.hasSessionStorage) {
-    //     sessionStorage.setItem("lastMonth", month);
-    //     if (!session.openMonths[month]) {
-    //         session.openMonths[month] = true;
-    //         sessionStorage.setItem("openMonths", JSON.stringify(session.openMonths));
-    //     }
-    // }
 
     //Scroll month into view by triggering videos shown event
     if (parent.attr('data-videos-loaded') === "true") {
@@ -138,8 +131,13 @@ function onShowMonth() {
 
     let panelBody = parent.find(".panel-body");
     panelBody.find(".fa-spinner").css("display", "inline-block");
-    getVideos(parent, session.channelId, videoMonth);
+    getVideos(parent, 1);
 };
+
+function getMoreVideos() {
+    console.log($(this).attr("data-page-number"));
+    getVideos($(this).parents(".timeline-month"), parseInt($(this).attr("data-page-number")));
+}
 
 function onHideMonth() {
     let parent = $(this).parent();

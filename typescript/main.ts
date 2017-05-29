@@ -87,11 +87,11 @@ class Timeouts {
 class VideoResponse {
     constructor() {
         this.more = false;
-        this.page = 1;
+        this.pageNumber = 1;
     }
     videos: any
     more: boolean
-    page: number
+    pageNumber: number
     totalResults: string
 }
 var session = new Session();
@@ -375,8 +375,10 @@ function createTimeline(channelDate: moment.Moment) {
                 </div>
                 <div id="${id_string}_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="${id_string}_heading">
                     <div class="panel-body">
-                        <button type="button" class="btn btn-info timeline-expand-all">Expand All</button>
-                        <button type="button" class="btn btn-info timeline-collapse-all">Collapse All</button>
+                        <div class="timeline-year-buttons">
+                            <button type="button" class="btn btn-info timeline-expand-all">Expand All</button>
+                            <button type="button" class="btn btn-info timeline-collapse-all">Collapse All</button>
+                        </div>
                         <div class="month-container"></div>
                     </div>
                 </div>
@@ -414,7 +416,7 @@ function createTimeline(channelDate: moment.Moment) {
                 <div id="${id_string}_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="${id_string}_heading">
                     <div class="panel-body">
                         <i class="fa fa-spinner fa-pulse"></i>
-                        <div class="video-container">
+                        <div class="video-container clearfix">
                         </div>
                     </div>
                 </div>
@@ -441,7 +443,9 @@ function createTimeline(channelDate: moment.Moment) {
     $(document).trigger("restore-complete", {success: true});
 }
 
-function getVideos(parent: JQuery, channelID: string, videoMonth: moment.Moment) {
+function getVideos(parent: JQuery, pageNumber: number) {
+    let videoMonth = getMomentFromTag(parent.attr("data-month"));
+
     let panelCollapse = parent.find(".panel-collapse");
     let panelBody = parent.find(".panel-body");
     let videoContainer = parent.find(".video-container");
@@ -449,7 +453,7 @@ function getVideos(parent: JQuery, channelID: string, videoMonth: moment.Moment)
     let publishedBefore = moment(videoMonth).add(1, "months");
     let videoTitle = $("#input_video_title").val().toLowerCase();
     //Get videos
-    retrieveVideos(channelID, publishedBefore, publishedAfter, "", function(videoResponse: VideoResponse) {
+    retrieveVideos(session.channelId, publishedBefore, publishedAfter, pageNumber, function(videoResponse: VideoResponse) {
         $.each(videoResponse.videos, function(i, video) {
             //Filter out videos that do not contain the specified title
             if (videoTitle !== "" && video.snippet.title.toLowerCase().indexOf(videoTitle) === -1) {
@@ -478,17 +482,31 @@ function getVideos(parent: JQuery, channelID: string, videoMonth: moment.Moment)
             )
         });
         panelBody.find(".fa-spinner").css("display", "none");
-        var videoCount = videoResponse.totalResults;
-        parent.children(".panel-heading").find("a").append('<span class="badge">' + videoCount + ' videos</span>');
-        if (videoCount === "0") {
-            parent.find(".panel-collapse").each(disableExpand);
+        let badge = parent.find(".panel-heading badge");
+        if (badge.length === 0) {
+            parent.children(".panel-heading").find("a").append('<span class="badge">' + videoResponse.totalResults + ' videos</span>');
         }
         else {
-            if (videoResponse.more && panelBody.find(".videos-show-more").length === 0) {
-                panelBody.append(
-                    `<button type="button" class="btn btn-info videos-show-more">Show More</button>`
-                );
+            badge.text(videoResponse.totalResults + " videos");
+        }
+
+        if (videoResponse.totalResults === "0") {
+            parent.find(".panel-collapse").each(disableExpand);
+        }
+
+        if (videoResponse.more) {
+            if (panelBody.find(".videos-show-more").length === 0) {
+                let more_button = $(`<button type="button" class="btn btn-info videos-show-more" data-page-number="${videoResponse.pageNumber}">Show More</button>`);
+                more_button.click(getMoreVideos);
+                panelBody.append(more_button);
             }
+            else {
+                //Update existing button
+                panelBody.find(".videos-show-more").attr("data-page-number", videoResponse.pageNumber);
+            }
+        }
+        else {
+            panelBody.find(".videos-show-more").remove();
         }
 
         //Mark watched videos
@@ -497,15 +515,18 @@ function getVideos(parent: JQuery, channelID: string, videoMonth: moment.Moment)
                 $(el).removeClass("btn-default").addClass("btn-success");
             }
         });
-        if (panelCollapse.hasClass("in")) {
-            //If the panel has already opened, scroll to it now
-            videoContainer.trigger("timeline-videos-shown");
+        if (pageNumber == 1) {
+            if (panelCollapse.hasClass("in")) {
+                //If the panel has already opened, scroll to it now
+                videoContainer.trigger("timeline-videos-shown");
+            }
+            //Otherwise, scroll once it has finished opening
+            panelCollapse.on("shown.bs.collapse", ScrollToMonth);
         }
-        //Otherwise, scroll once it has finished opening
-        panelCollapse.on("shown.bs.collapse", ScrollToMonth);
         parent.attr('data-videos-loaded', 'true');
     });
 }
+
 
 function resetWatchHistory() {
     if (confirm("Are you sure you want to erase your watch history for this channel?")) {

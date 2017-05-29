@@ -11,6 +11,11 @@ body {
 body.timeline-modal-open {
     overflow: hidden;
 }
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
 
 #modal_background {
     position: fixed;
@@ -385,7 +390,7 @@ a:focus {
 .panel-title .badge {
 	margin-left: 10px;
 }
-#timeline_container button {
+#timeline_container_buttons button, .timeline-year-buttons button  {
     margin-right: 8px;
     margin-bottom: 8px;
     vertical-align: top;
@@ -456,6 +461,11 @@ a:focus {
 		left: -1px;
 		opacity: 0.8;
 	}
+    .videos-show-more {
+        width: calc(100% - 16px);
+        margin: 0 8px;
+        padding: 10px 0;
+    }
 .timeline-channel-created {
 
 }

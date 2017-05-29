@@ -1,34 +1,45 @@
 var CacheMonth = (function () {
-    function CacheMonth(lastUpdated) {
-        this.lastUpdated = lastUpdated;
+    function CacheMonth() {
         this.videos = {};
         this.retrievedAll = false;
     }
     return CacheMonth;
 }());
-function retrieveVideos(channelID, publishedBefore, publishedAfter, nextPageToken, callback) {
+function retrieveVideos(channelID, publishedBefore, publishedAfter, pageNumber, callback) {
+    var VIDEOS_PER_PAGE = 50;
     var cacheKey = channelID + "/" + publishedAfter.format("YYYY/MM");
     var cacheMonth = lscache.get(cacheKey);
+    var numVideos = 0;
     var videoResponse = new VideoResponse();
     var refresh = false;
     var refreshLatestOnly = false;
+    var refreshNextPage = false;
     if (cacheMonth === null) {
         refresh = true;
-        cacheMonth = new CacheMonth(moment().toISOString());
+        cacheMonth = new CacheMonth();
     }
     else {
+        numVideos = Object.keys(cacheMonth.videos).length;
+        console.log("# videos: " + numVideos);
+        console.log("Page number: " + pageNumber);
         var lastUpdated = moment(cacheMonth.lastUpdated);
         if (moment(lastUpdated).add(1, "days") < moment() && moment(publishedAfter).add(2, "months") > moment()) {
             refresh = true;
             refreshLatestOnly = true;
+            console.log("Refreshing due to timeout");
+        }
+        else if (pageNumber * VIDEOS_PER_PAGE > numVideos && !cacheMonth.retrievedAll) {
+            refresh = true;
+            refreshNextPage = true;
+            console.log("Getting next page");
         }
     }
     if (refresh) {
-        console.log("Refreshing from YouTube Data API");
+        console.log("%c Refreshing from YouTube Data API", "background-color: red; color: white;");
         var values = {
             part: 'snippet',
             channelId: channelID,
-            maxResults: 50,
+            maxResults: VIDEOS_PER_PAGE,
             type: "video",
             publishedAfter: publishedAfter.toISOString(),
             publishedBefore: publishedBefore.toISOString(),
@@ -36,8 +47,8 @@ function retrieveVideos(channelID, publishedBefore, publishedAfter, nextPageToke
             fields: "nextPageToken,pageInfo/totalResults,items/id/videoId,items/snippet/publishedAt,items/snippet/title,items/snippet/thumbnails/medium/url",
             key: apiKey
         };
-        if (nextPageToken !== "") {
-            values.pageToken = nextPageToken;
+        if (refreshNextPage) {
+            values.pageToken = cacheMonth.nextPageToken;
         }
         $.get("https://www.googleapis.com/youtube/v3/search", values, function (data) {
             var previousUpdate = false;
@@ -55,25 +66,48 @@ function retrieveVideos(channelID, publishedBefore, publishedAfter, nextPageToke
             }
             else {
                 videoResponse.more = true;
+                videoResponse.pageNumber = pageNumber + 1;
                 if (!refreshLatestOnly) {
                     cacheMonth.nextPageToken = data.nextPageToken;
                 }
             }
+            cacheMonth.lastUpdated = moment().toISOString();
             lscache.set(cacheKey, cacheMonth, 43200);
-            videoResponse.videos = data.items;
+            var videos = convertVideosToArray(cacheMonth.videos);
+            videoResponse.videos = videos.slice((pageNumber - 1) * VIDEOS_PER_PAGE, pageNumber * VIDEOS_PER_PAGE);
             videoResponse.totalResults = Object.keys(cacheMonth.videos).length.toString() + ((cacheMonth.retrievedAll) ? "" : "+");
+            videoResponse.pageNumber = pageNumber + 1;
             callback(videoResponse);
         });
     }
-    else {
-        console.log("Using lscache");
-        videoResponse.videos = cacheMonth.videos;
-        if (cacheMonth.retrievedAll == false) {
+    else if (numVideos > (pageNumber - 1) * VIDEOS_PER_PAGE) {
+        console.log("%c Using lscache", "background-color: limegreen");
+        var videos = convertVideosToArray(cacheMonth.videos);
+        videoResponse.videos = videos.slice((pageNumber - 1) * VIDEOS_PER_PAGE, pageNumber * VIDEOS_PER_PAGE);
+        if (cacheMonth.retrievedAll == false || numVideos > pageNumber * VIDEOS_PER_PAGE) {
             videoResponse.more = true;
+            videoResponse.pageNumber = pageNumber + 1;
         }
-        videoResponse.totalResults = Object.keys(cacheMonth.videos).length.toString() + ((cacheMonth.retrievedAll) ? "" : "+");
+        videoResponse.totalResults = numVideos.toString() + ((cacheMonth.retrievedAll) ? "" : "+");
         callback(videoResponse);
     }
+    else {
+        console.log("No more videos");
+    }
+}
+function sortVideos(a, b) {
+    if (moment(a.snippet.publishedAt) > moment(b.snippet.publishedAt)) {
+        return -1;
+    }
+    else if (moment(a.snippet.publishedAt) < moment(b.snippet.publishedAt)) {
+        return 1;
+    }
+    return 0;
+}
+function convertVideosToArray(videos) {
+    var video_array = $.map(videos, function (video) { return video; });
+    video_array.sort(sortVideos);
+    return video_array;
 }
 "use strict";
 var Session = (function () {
@@ -161,7 +195,7 @@ var Timeouts = (function () {
 var VideoResponse = (function () {
     function VideoResponse() {
         this.more = false;
-        this.page = 1;
+        this.pageNumber = 1;
     }
     return VideoResponse;
 }());
@@ -361,7 +395,7 @@ function createTimeline(channelDate) {
     $("#timeline_container_buttons").show();
     while (yearLoopDate.isSameOrAfter(channelDate, "year")) {
         var id_string = 'timeline_year_' + yearLoopDate.year();
-        $("#timeline_accordion").append("<div class=\"timeline-year panel panel-default\" id=\"" + id_string + "\">\n                <div class=\"panel-heading\" role=\"tab\" id=\"" + id_string + "_heading\">\n                    <h4 class=\"panel-title\">\n                        <a role=\"button\" data-toggle=\"collapse\" data-parent=\"#" + id_string + "\" href=\"#" + id_string + "_collapse\" aria-expanded=\"true\" aria-controls=\"" + id_string + "_collapse\">\n                            <span class=\"glyphicon glyphicon-chevron-down\"></span><span class=\"timeline-year-label\">" + yearLoopDate.year() + "</span>\n                        </a>\n                    </h4>\n                </div>\n                <div id=\"" + id_string + "_collapse\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"" + id_string + "_heading\">\n                    <div class=\"panel-body\">\n                        <button type=\"button\" class=\"btn btn-info timeline-expand-all\">Expand All</button>\n                        <button type=\"button\" class=\"btn btn-info timeline-collapse-all\">Collapse All</button>\n                        <div class=\"month-container\"></div>\n                    </div>\n                </div>\n            </div>");
+        $("#timeline_accordion").append("<div class=\"timeline-year panel panel-default\" id=\"" + id_string + "\">\n                <div class=\"panel-heading\" role=\"tab\" id=\"" + id_string + "_heading\">\n                    <h4 class=\"panel-title\">\n                        <a role=\"button\" data-toggle=\"collapse\" data-parent=\"#" + id_string + "\" href=\"#" + id_string + "_collapse\" aria-expanded=\"true\" aria-controls=\"" + id_string + "_collapse\">\n                            <span class=\"glyphicon glyphicon-chevron-down\"></span><span class=\"timeline-year-label\">" + yearLoopDate.year() + "</span>\n                        </a>\n                    </h4>\n                </div>\n                <div id=\"" + id_string + "_collapse\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"" + id_string + "_heading\">\n                    <div class=\"panel-body\">\n                        <div class=\"timeline-year-buttons\">\n                            <button type=\"button\" class=\"btn btn-info timeline-expand-all\">Expand All</button>\n                            <button type=\"button\" class=\"btn btn-info timeline-collapse-all\">Collapse All</button>\n                        </div>\n                        <div class=\"month-container\"></div>\n                    </div>\n                </div>\n            </div>");
         $(".timeline-navigation > ul").append("<li role=\"presentation\"><a href=\"" + id_string + "_heading\">" + yearLoopDate.year() + "</a></li>");
         yearLoopDate.subtract(1, "years");
     }
@@ -371,7 +405,7 @@ function createTimeline(channelDate) {
     while (monthLoopDate.isSameOrAfter(channelDate, "month")) {
         var keyMonthYear = monthLoopDate.year() + "-" + monthLoopDate.format("MM");
         var id_string_1 = "timeline_month_" + keyMonthYear;
-        $("#timeline_year_" + monthLoopDate.year() + "_collapse .month-container").append("<div class=\"timeline-month panel panel-default\" id=\"" + id_string_1 + "\" data-month=\"" + keyMonthYear + "\">\n                <div class=\"panel-heading\" role=\"tab\" id=\"" + id_string_1 + "_heading\">\n                    <h4 class=\"panel-title\">\n                        <a role=\"button\" data-videos-loaded=\"false\" data-toggle=\"collapse\" data-parent=\"#" + id_string_1 + "\" href=\"#" + id_string_1 + "_collapse\" aria-expanded=\"true\" aria-controls=\"" + id_string_1 + "_collapse\">\n                            <span class=\"glyphicon glyphicon-chevron-down\"></span><span class=\"timeline-month-label\">" + monthLoopDate.format("MMMM YYYY") + "</span>\n                        </a>\n                    </h4>\n                </div>\n                <div id=\"" + id_string_1 + "_collapse\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"" + id_string_1 + "_heading\">\n                    <div class=\"panel-body\">\n                        <i class=\"fa fa-spinner fa-pulse\"></i>\n                        <div class=\"video-container\">\n                        </div>\n                    </div>\n                </div>\n            </div>");
+        $("#timeline_year_" + monthLoopDate.year() + "_collapse .month-container").append("<div class=\"timeline-month panel panel-default\" id=\"" + id_string_1 + "\" data-month=\"" + keyMonthYear + "\">\n                <div class=\"panel-heading\" role=\"tab\" id=\"" + id_string_1 + "_heading\">\n                    <h4 class=\"panel-title\">\n                        <a role=\"button\" data-videos-loaded=\"false\" data-toggle=\"collapse\" data-parent=\"#" + id_string_1 + "\" href=\"#" + id_string_1 + "_collapse\" aria-expanded=\"true\" aria-controls=\"" + id_string_1 + "_collapse\">\n                            <span class=\"glyphicon glyphicon-chevron-down\"></span><span class=\"timeline-month-label\">" + monthLoopDate.format("MMMM YYYY") + "</span>\n                        </a>\n                    </h4>\n                </div>\n                <div id=\"" + id_string_1 + "_collapse\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"" + id_string_1 + "_heading\">\n                    <div class=\"panel-body\">\n                        <i class=\"fa fa-spinner fa-pulse\"></i>\n                        <div class=\"video-container clearfix\">\n                        </div>\n                    </div>\n                </div>\n            </div>");
         monthLoopDate.subtract(1, "months");
     }
     $(".timeline-month").on("timeline-videos-shown", ScrollToMonth);
@@ -381,14 +415,15 @@ function createTimeline(channelDate) {
     $('.panel-collapse').collapse({ toggle: false });
     $(document).trigger("restore-complete", { success: true });
 }
-function getVideos(parent, channelID, videoMonth) {
+function getVideos(parent, pageNumber) {
+    var videoMonth = getMomentFromTag(parent.attr("data-month"));
     var panelCollapse = parent.find(".panel-collapse");
     var panelBody = parent.find(".panel-body");
     var videoContainer = parent.find(".video-container");
     var publishedAfter = videoMonth;
     var publishedBefore = moment(videoMonth).add(1, "months");
     var videoTitle = $("#input_video_title").val().toLowerCase();
-    retrieveVideos(channelID, publishedBefore, publishedAfter, "", function (videoResponse) {
+    retrieveVideos(session.channelId, publishedBefore, publishedAfter, pageNumber, function (videoResponse) {
         $.each(videoResponse.videos, function (i, video) {
             if (videoTitle !== "" && video.snippet.title.toLowerCase().indexOf(videoTitle) === -1) {
                 return;
@@ -397,25 +432,40 @@ function getVideos(parent, channelID, videoMonth) {
             videoContainer.append("<div class=\"timeline-video button-result\">\n                    <a href=\"http://www.youtube.com/watch?v=" + video.id.videoId + "\" target=\"_blank\">\n                        <div class=\"timeline-video-container btn btn-default\" data-video-id=\"" + video.id.videoId + "\" onclick=\"watchVideo(this);\">\n                            <div class=\"timeline-video-date badge yt-red\">" + video_date.format("Do") + "</div>\n                            <div class=\"timeline-video-thumb-container\">\n                                <div class=\"timeline-video-watched\">\n                                    <i class=\"fa fa-check\"></i>\n                                </div>\n                                <img src=\"" + video.snippet.thumbnails.medium.url + "\" />\n                            </div>\n                            <div class=\"button-result-info-box\">\n                                <div class=\"button-result-info-wrapper\" >\n                                   <div class=\"button-result-title smart-break\">" + video.snippet.title + "</div>\n                                   </div>\n                            </div>\n                        </div>\n                   </a>\n                </div>");
         });
         panelBody.find(".fa-spinner").css("display", "none");
-        var videoCount = videoResponse.totalResults;
-        parent.children(".panel-heading").find("a").append('<span class="badge">' + videoCount + ' videos</span>');
-        if (videoCount === "0") {
-            parent.find(".panel-collapse").each(disableExpand);
+        var badge = parent.find(".panel-heading badge");
+        if (badge.length === 0) {
+            parent.children(".panel-heading").find("a").append('<span class="badge">' + videoResponse.totalResults + ' videos</span>');
         }
         else {
-            if (videoResponse.more && panelBody.find(".videos-show-more").length === 0) {
-                panelBody.append("<button type=\"button\" class=\"btn btn-info videos-show-more\">Show More</button>");
+            badge.text(videoResponse.totalResults + " videos");
+        }
+        if (videoResponse.totalResults === "0") {
+            parent.find(".panel-collapse").each(disableExpand);
+        }
+        if (videoResponse.more) {
+            if (panelBody.find(".videos-show-more").length === 0) {
+                var more_button = $("<button type=\"button\" class=\"btn btn-info videos-show-more\" data-page-number=\"" + videoResponse.pageNumber + "\">Show More</button>");
+                more_button.click(getMoreVideos);
+                panelBody.append(more_button);
             }
+            else {
+                panelBody.find(".videos-show-more").attr("data-page-number", videoResponse.pageNumber);
+            }
+        }
+        else {
+            panelBody.find(".videos-show-more").remove();
         }
         videoContainer.find(".timeline-video-container").each(function (i, el) {
             if (session.watchHistory[$(el).attr("data-video-id")]) {
                 $(el).removeClass("btn-default").addClass("btn-success");
             }
         });
-        if (panelCollapse.hasClass("in")) {
-            videoContainer.trigger("timeline-videos-shown");
+        if (pageNumber == 1) {
+            if (panelCollapse.hasClass("in")) {
+                videoContainer.trigger("timeline-videos-shown");
+            }
+            panelCollapse.on("shown.bs.collapse", ScrollToMonth);
         }
-        panelCollapse.on("shown.bs.collapse", ScrollToMonth);
         parent.attr('data-videos-loaded', 'true');
     });
 }
@@ -623,9 +673,13 @@ function onShowMonth() {
     }
     var panelBody = parent.find(".panel-body");
     panelBody.find(".fa-spinner").css("display", "inline-block");
-    getVideos(parent, session.channelId, videoMonth);
+    getVideos(parent, 1);
 }
 ;
+function getMoreVideos() {
+    console.log($(this).attr("data-page-number"));
+    getVideos($(this).parents(".timeline-month"), parseInt($(this).attr("data-page-number")));
+}
 function onHideMonth() {
     var parent = $(this).parent();
     var month = parent.attr("data-month");
