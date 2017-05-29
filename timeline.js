@@ -336,8 +336,8 @@ function displayChannelSearchResults(channels) {
             }
             $("#channel_result_container").append("<div class=\"channel-result button-result\" data-channel-ID=\"" + channel.id + "\">\n                        <a class=\"btn btn-default " + set_active + "\" href=\"#\">\n                            <img src=\"" + channel.snippet.thumbnails.medium.url + "\" />\n                            <div class=\"button-result-info-box\">\n                                <div class=\"button-result-info-wrapper\" >\n                                    <div class=\"button-result-title smart-break\">" + channel.snippet.title + "</div>\n                                    <div class=\"channel-result-badge-container\">\n                                        <span class=\"channel-result-subscribers badge " + subscriberClass + "\" data-subscribers=\"" + channel.statistics.subscriberCount + "\">" + subscribers + "</span>\n                                        <br />\n                                        <span class=\"channel-result-videos badge " + videoClass + "\">" + addCommas(channel.statistics.videoCount) + "</span>\n                                    </div>\n                                </div>\n                            </div>\n                        </a>\n                    </div>");
         });
+        $(".channel-result a").click(SelectChannel);
     });
-    $(".channel-result a").click(SelectChannel);
 }
 function processChannel(channelID, customURL) {
     $.get("https://www.googleapis.com/youtube/v3/channels", {
@@ -432,7 +432,7 @@ function getVideos(parent, pageNumber) {
             videoContainer.append("<div class=\"timeline-video button-result\">\n                    <a href=\"http://www.youtube.com/watch?v=" + video.id.videoId + "\" target=\"_blank\">\n                        <div class=\"timeline-video-container btn btn-default\" data-video-id=\"" + video.id.videoId + "\" onclick=\"watchVideo(this);\">\n                            <div class=\"timeline-video-date badge yt-red\">" + video_date.format("Do") + "</div>\n                            <div class=\"timeline-video-thumb-container\">\n                                <div class=\"timeline-video-watched\">\n                                    <i class=\"fa fa-check\"></i>\n                                </div>\n                                <img src=\"" + video.snippet.thumbnails.medium.url + "\" />\n                            </div>\n                            <div class=\"button-result-info-box\">\n                                <div class=\"button-result-info-wrapper\" >\n                                   <div class=\"button-result-title smart-break\">" + video.snippet.title + "</div>\n                                   </div>\n                            </div>\n                        </div>\n                   </a>\n                </div>");
         });
         panelBody.find(".fa-spinner").css("display", "none");
-        var badge = parent.find(".panel-heading badge");
+        var badge = parent.find(".panel-heading .badge");
         if (badge.length === 0) {
             parent.children(".panel-heading").find("a").append('<span class="badge">' + videoResponse.totalResults + ' videos</span>');
         }
@@ -702,6 +702,7 @@ function ScrollToMonth() {
 function SelectChannel(event) {
     event.preventDefault();
     var channelID = $(this).parent().attr("data-channel-ID");
+    console.log(channelID);
     $("#channel_results_collapse").collapseChevron("hide");
     if (channelID === $("#input_channel_ID").val()) {
         return;

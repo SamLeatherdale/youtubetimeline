@@ -277,12 +277,12 @@ function displayChannelSearchResults(channels: SearchChannel[]) {
                         </a>
                     </div>`
                 );
+
+
             });
-        }
-    );
-
-
-    $(".channel-result a").click(SelectChannel);
+            
+            $(".channel-result a").click(SelectChannel);
+    });
 }
 
 function processChannel(channelID: string, customURL: boolean) {
@@ -482,7 +482,7 @@ function getVideos(parent: JQuery, pageNumber: number) {
             )
         });
         panelBody.find(".fa-spinner").css("display", "none");
-        let badge = parent.find(".panel-heading badge");
+        let badge = parent.find(".panel-heading .badge");
         if (badge.length === 0) {
             parent.children(".panel-heading").find("a").append('<span class="badge">' + videoResponse.totalResults + ' videos</span>');
         }

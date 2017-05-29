@@ -167,6 +167,7 @@ function ScrollToMonth() {
 function SelectChannel(event: JQueryEventObject) {
     event.preventDefault();
     let channelID: string = $(this).parent().attr("data-channel-ID");
+    console.log(channelID);
     $("#channel_results_collapse").collapseChevron("hide");
     if (channelID === $("#input_channel_ID").val()) {
         return;
