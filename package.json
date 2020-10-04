@@ -1,0 +1,18 @@
+{
+  "name": "youtubetimeline",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Automate building and publishing to GitHub pages.",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build-php": "php compile.php",
+    "build-js": "tsc",
+    "build": "yarn build-php && yarn build-js && cp third_party build/third_party",
+    "deploy": "yarn build && gh-pages -d build",
+    "start": "http-server build"
+  },
+  "devDependencies": {
+    "gh-pages": "^3.1.0"
+  }
+}

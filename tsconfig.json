@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "commonjs",
+        "module": "system",
         "moduleResolution": "node",
         "isolatedModules": false,
         "jsx": "react",
@@ -14,10 +14,10 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outFile": "../timeline.js"
+        "outFile": "build/timeline.js"
     },
     "include": [
-        "./*"
+        "typescript/*.ts"
     ],
     "exclude": [
     ],
