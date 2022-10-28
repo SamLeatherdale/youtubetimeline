@@ -8,3 +8,7 @@ api/
 .Trashes
 ehthumbs.db
 Thumbs.db
+.parcel-cache
+node_modules
+dist
+.env

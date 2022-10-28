@@ -4,7 +4,8 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "isolatedModules": false,
-        "jsx": "react",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": false,
@@ -14,16 +15,10 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outFile": "../timeline.js"
     },
     "include": [
-        "./*"
-    ],
-    "exclude": [
+        "typescript/*"
     ],
     "compileOnSave": true,
-    "buildOnSave": false,
-    "atom": {
-        "rewriteTsconfig": false
-    }
+    "buildOnSave": false
 }

@@ -1,108 +1,16 @@
-"use strict";
-/// <reference path="api.ts" />
-/// <reference path="utility.ts" />
-//import * as moment from "./moment";
-//import moment = moment;
-//Custom events defined in this script include:
-//timeline-videos-shown, restore-complete
-class Session {
-    channelName: string;
-    searchTerm: string;
-    channelSearchCompleted = false;
-    channelDate: moment.Moment = moment();
-    channelId: string;
-    channel: Channel;
-    lastMonth: moment.Moment;
-    openMonths = {};
-    watchHistory = {};
+import $ from "jquery";
+import "scrolltofixed"
+import moment from "moment";
+import "./api"
+import { retrieveVideos } from "./api";
+import { Channel, SearchChannel, VideoResponse } from "./classes";
+import { API_KEY, session, timeouts } from "./globals";
+import { addCommas, BindRestoreSessionHandler, CollapseAll, collapseChevron, disableExpand, ExpandAll, getMomentFromTag, getMoreVideos, getParameterByName, goTo, hideShowPanel, JumpToYear, onDropdownChevron, onExpandMonth, onResize, ScrollToMonth, SearchChannelsDropdown, SelectChannel, showMessage, showTutorial, ToggleMobileNavigation } from "./utility";
 
-    hasSessionStorage: boolean;
-    hasLocalStorage: boolean;
-    constructor() {
-        this.hasSessionStorage = storageAvailable("sessionStorage");
-        this.hasLocalStorage = storageAvailable("localStorage");
-    }
-    loadWatchHistory() {
-        if (this.hasLocalStorage && localStorage.getItem("watchHistory_" + this.channelId)) {
-            this.watchHistory = JSON.parse(localStorage.getItem("watchHistory_" + this.channelId));
-        }
-    }
-    replaceState(options?: any) {
-        options = $.extend({}, {month: false, default: false}, options);
-        if (options.default) {
-            history.replaceState({}, "YouTube Timeline", host_url);
-            return;
-        }
-        let channelString = (typeof session.channel.username !== "undefined") ? host_url + "?user=" + encodeURIComponent(this.channel.username) : host_url + "?channel=" + encodeURIComponent(session.channelId);
-        if (options.month) {
-            history.replaceState({}, this.channel.snippet.title + " - " + this.lastMonth.format("MMMM YYYY"), channelString + "&lastMonth=" + encodeURIComponent(this.lastMonth.format("YYYY/MM")));
-        } else {
-            history.replaceState({}, this.channel.snippet.title, channelString);
-            document.title = this.channel.snippet.title + " - YouTube Timeline";
-        }
-
-    }
-};
-class Channel {
-    id: string;
-    statistics: Statistics;
-    snippet: Snippet;
-    //For vanity URL
-    username: string;
-}
-class SearchChannel {
-    id: SearchChannelId;
-}
-class SearchChannelId {
-    kind: string;
-    channelId: string;
-}
-class Snippet {
-    publishedAt: string;
-    title: string;
-    thumbnails: Thumbnails;
-}
-class Thumbnails {
-    medium: Thumbnail;
-}
-class Thumbnail {
-    url: string;
-}
-class Statistics {
-    subscriberCount: string;
-    hiddenSubscriberCount: boolean;
-    videoCount: string;
-}
-class Video {
-    id: VideoId;
-    snippet: Snippet;
-}
-class VideoId {
-    videoId: string;
-}
-class Timeouts {
-    onResize: number;
-    errorMessagesEmpty: number;
-}
-class VideoResponse {
-    constructor() {
-        this.more = false;
-        this.pageNumber = 1;
-    }
-    videos: any
-    more: boolean
-    pageNumber: number
-    totalResults: string
-}
-var session = new Session();
-var timeouts = new Timeouts();
-var APPLICATION_VERSION = "103";
-var host_url = (window.location.hostname == "localhost") ? "/youtubetimelinejs/youtubetimeline/" : "/youtubetimeline/";
-var apiKey = "AIzaSyD7qhxl1x67T5l8itG9jGZ4Oa69gBeVurw";
 
 function submitUsername() {
-    let channel_name: string = $("#input_channel_name").val();
-    let search_term: string = $("#input_video_title").val();
+    let channel_name: string = $("#input_channel_name").val() as string;
+    let search_term: string = $("#input_video_title").val() as string;
     if (channel_name === session.channelName && search_term === session.searchTerm) {
         //Query is the same, return
         return;
@@ -110,7 +18,7 @@ function submitUsername() {
     else if (channel_name === session.channelName && search_term !== session.searchTerm) {
         session.searchTerm = search_term;
         createTimeline(session.channelDate);
-        $('#timeline_container').goTo();
+        goTo($('#timeline_container'));
         return;
     }
     //Cache channel name in case user wants to perform search
@@ -120,7 +28,7 @@ function submitUsername() {
     //Clear errors
     $("#error_messages > *").addClass("clear").slideUp();
     $("#error_messages > *").slideUp();
-    timeouts.errorMessagesEmpty = setTimeout(function() {
+    timeouts.errorMessagesEmpty = window.setTimeout(function() {
         $("#error_messages > .clear").remove();
     }, 400);
 
@@ -141,7 +49,7 @@ function submitUsername() {
 			part : 'id',
 	   		forUsername : channel_name,
 			fields : "pageInfo/totalResults,items/id",
-	   		key: apiKey
+	   		key: API_KEY
 	   	},
        	function(data) {
        	    if (data.pageInfo.totalResults === 0) {
@@ -155,7 +63,7 @@ function submitUsername() {
        	    else {
                 let channel = data.items[0];
        	        session.channelSearchCompleted = false;
-       	        $("#channel_results_collapse").collapseChevron("hide");
+       	        collapseChevron($("#channel_results_collapse"), "hide");
        	        $("#channel_result_container").empty();
                 $("#channel_results_description").text("Suggestions");
                 results_panel.removeClass("panel-warning");
@@ -175,10 +83,10 @@ function submitUsername() {
     });
 }
 
-function searchChannels(search_term: string, auto_hide_show: boolean) {
+export function searchChannels(search_term: string, auto_hide_show: boolean) {
     $("#channel_results").css("display", "block");
     if (auto_hide_show) {
-        $("#channel_results_collapse").hideShowPanel(function() {
+        hideShowPanel($("#channel_results_collapse"), function() {
             $("#channel_result_container").empty();
             $("#channel_results_spinner").css("display", "inline-block");
         });
@@ -196,7 +104,7 @@ function searchChannels(search_term: string, auto_hide_show: boolean) {
 			type: "channel",
 			maxResults: 5,
 			filter: "pageInfo/totalResults,items/id",
-	   		key: apiKey
+	   		key: API_KEY
 	   	},
        	function(data) {
             if (data.pageInfo.totalResults === 0) {
@@ -226,7 +134,7 @@ function displayChannelSearchResults(channels: SearchChannel[]) {
         {
             part : 'snippet,statistics',
             id : channel_ids.join(","),
-            key: apiKey
+            key: API_KEY
         },
         function(data) {
             channel_data = data.items;
@@ -285,13 +193,13 @@ function displayChannelSearchResults(channels: SearchChannel[]) {
     });
 }
 
-function processChannel(channelID: string, customURL: boolean) {
+export function processChannel(channelID: string, customURL: boolean) {
     $.get(
         "https://www.googleapis.com/youtube/v3/channels",
         {
             part : 'snippet,statistics',
             id : channelID,
-            key: apiKey
+            key: API_KEY
         },
        	function(data) {
             if (data.pageInfo.totalResults === 0) {
@@ -310,12 +218,12 @@ function processChannel(channelID: string, customURL: boolean) {
             $("#channel_info_container").empty();
             $("#channel_info_container").append(
                 `<div id="channel_info">
-                    <a href="http://www.youtube.com/channel/${channel.id}" target="_blank" >
+                    <a href="https://www.youtube.com/channel/${channel.id}" target="_blank" >
                         <img src="${channel.snippet.thumbnails.medium.url}" />
                     </a>
                     <div class="channel-info-details">
                         <div class="channel-info-details-wrapper">
-                            <a href="http://www.youtube.com/channel/${channel.id}" target="_blank" >
+                            <a href="https://www.youtube.com/channel/${channel.id}" target="_blank" >
                                 <div class="channel-info-name">${channel.snippet.title}</div>
                             </a>
                             <div class="channel-info-subscribers">${subscribers} subscribers</div>
@@ -443,7 +351,7 @@ function createTimeline(channelDate: moment.Moment) {
     $(document).trigger("restore-complete", {success: true});
 }
 
-function getVideos(parent: JQuery, pageNumber: number) {
+export function getVideos(parent: JQuery, pageNumber: number) {
     let videoMonth = getMomentFromTag(parent.attr("data-month"));
 
     let panelCollapse = parent.find(".panel-collapse");
@@ -451,7 +359,7 @@ function getVideos(parent: JQuery, pageNumber: number) {
     let videoContainer = parent.find(".video-container");
     let publishedAfter = videoMonth;
     let publishedBefore = moment(videoMonth).add(1, "months");
-    let videoTitle = $("#input_video_title").val().toLowerCase();
+    let videoTitle = ($("#input_video_title").val() as string).toLowerCase();
     //Get videos
     retrieveVideos(session.channelId, publishedBefore, publishedAfter, pageNumber, function(videoResponse: VideoResponse) {
         $.each(videoResponse.videos, function(i, video) {
@@ -462,8 +370,8 @@ function getVideos(parent: JQuery, pageNumber: number) {
             let video_date = moment(video.snippet.publishedAt);
             videoContainer.append(
                 `<div class="timeline-video button-result">
-                    <a href="http://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
-                        <div class="timeline-video-container btn btn-default" data-video-id="${video.id.videoId}" onclick="watchVideo(this);">
+                    <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
+                        <div class="timeline-video-container btn btn-default" data-video-id="${video.id.videoId}">
                             <div class="timeline-video-date badge yt-red">${video_date.format("Do")}</div>
                             <div class="timeline-video-thumb-container">
                                 <div class="timeline-video-watched">
@@ -480,6 +388,7 @@ function getVideos(parent: JQuery, pageNumber: number) {
                    </a>
                 </div>`
             )
+            videoContainer.find(".timeline-video-container").click(watchVideo)
         });
         panelBody.find(".fa-spinner").css("display", "none");
         let badge = parent.find(".panel-heading .badge");
@@ -533,13 +442,13 @@ function resetWatchHistory() {
         if (session.hasLocalStorage) {
             localStorage.removeItem("watchHistory_" + session.channelId);
             sessionStorage.clear();
-            location.reload(true);
+            location.reload();
         }
     }
 }
 
-function watchVideo(target) {
-    var video = $(target);
+function watchVideo() {
+    var video = $(this);
     $("#reset_watch_history").show();
     session.lastMonth = getMomentFromTag(video.parents(".timeline-month").attr("data-month"));
     session.replaceState({ month: true });
@@ -590,7 +499,7 @@ function RestoreSession() {
     }
 }
 
-function FinaliseRestoreSession(event, event_data) {
+export function FinaliseRestoreSession(event, event_data) {
     // if (sessionStorage.getItem("openMonths")) {
     //     session.openMonths = JSON.parse(sessionStorage.getItem("openMonths"));
     //     let month_collapse;
@@ -605,9 +514,9 @@ function FinaliseRestoreSession(event, event_data) {
     if (event_data.success) {
         session.loadWatchHistory();
         if (session.lastMonth) {
-            $("#timeline_year_" + session.lastMonth.year() + "_collapse").collapseChevron("show");
+            collapseChevron($("#timeline_year_" + session.lastMonth.year() + "_collapse"), "show");
             let month_collapse = $("#timeline_month_" + session.lastMonth.format("YYYY-MM") + "_collapse");
-            month_collapse.collapseChevron("show").on("timeline-videos-shown", function() {
+            collapseChevron(month_collapse, "show").on("timeline-videos-shown", function() {
                 //month_collapse.parent().goTo();
             });
         }
@@ -618,7 +527,7 @@ function FinaliseRestoreSession(event, event_data) {
 $(function() {
     //Some browsers retain form information
     $("#form_channel_name input[type='hidden']").val("");
-    $("#form_channel_name").submit(function(event: JQueryEventObject) {
+    $("#form_channel_name").submit(function(event) {
         event.preventDefault();
         submitUsername();
     });
@@ -630,7 +539,7 @@ $(function() {
     $("#timeline_navigation").scrollToFixed({ marginTop: 10, zIndex: 99 });
 
     $("#scroll_top").click(function() {
-        $('header').goTo();
+        goTo($('header'));
     });
 
     //Hook up resize events
@@ -639,7 +548,7 @@ $(function() {
         if (timeouts.onResize !== 0) {
             clearTimeout(timeouts.onResize);
         }
-        timeouts.onResize = setTimeout(function() { onResize(); }, 100);
+        timeouts.onResize = window.setTimeout(function() { onResize(); }, 100);
     });
 
     showTutorial();

@@ -1,161 +1,109 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebApplication" lang="en">
+
 <head>
-<meta charset="utf-8">
+    <meta charset="utf-8">
     <!--Compiled on 29/05/2017 10:02:59AM +02:00 CEST-->
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="View the entire history of any YouTube channel without scrolling forever." />
-<meta name="author" content="Sam Leatherdale" />
-<title>YouTube Timeline</title>
-<!--Iconography-->
-<link rel="apple-touch-icon" sizes="57x57" href="/youtubetimeline/icon/apple-touch-icon-57x57.png?v=4">
-<link rel="apple-touch-icon" sizes="60x60" href="/youtubetimeline/icon/apple-touch-icon-60x60.png?v=4">
-<link rel="apple-touch-icon" sizes="72x72" href="/youtubetimeline/icon/apple-touch-icon-72x72.png?v=4">
-<link rel="apple-touch-icon" sizes="76x76" href="/youtubetimeline/icon/apple-touch-icon-76x76.png?v=4">
-<link rel="apple-touch-icon" sizes="114x114" href="/youtubetimeline/icon/apple-touch-icon-114x114.png?v=4">
-<link rel="apple-touch-icon" sizes="120x120" href="/youtubetimeline/icon/apple-touch-icon-120x120.png?v=4">
-<link rel="apple-touch-icon" sizes="144x144" href="/youtubetimeline/icon/apple-touch-icon-144x144.png?v=4">
-<link rel="apple-touch-icon" sizes="152x152" href="/youtubetimeline/icon/apple-touch-icon-152x152.png?v=4">
-<link rel="apple-touch-icon" sizes="180x180" href="/youtubetimeline/icon/apple-touch-icon-180x180.png?v=4">
-<link rel="icon" type="image/png" href="/youtubetimeline/icon/favicon-32x32.png?v=4" sizes="32x32">
-<link rel="icon" type="image/png" href="/youtubetimeline/icon/android-chrome-192x192.png?v=4" sizes="192x192">
-<link rel="icon" type="image/png" href="/youtubetimeline/icon/favicon-96x96.png?v=4" sizes="96x96">
-<link rel="icon" type="image/png" href="/youtubetimeline/icon/favicon-16x16.png?v=4" sizes="16x16">
-<link rel="manifest" href="/youtubetimeline/icon/manifest.json?v=4">
-<link rel="mask-icon" href="/youtubetimeline/icon/safari-pinned-tab.svg?v=4" color="#e62117">
-<link rel="shortcut icon" href="/youtubetimeline/icon/favicon.ico?v=4">
-<meta name="apple-mobile-web-app-title" content="YouTube Timeline">
-<meta name="application-name" content="YouTube Timeline">
-<meta name="msapplication-TileColor" content="#b91d47">
-<meta name="msapplication-TileImage" content="/youtubetimeline/icon/mstile-144x144.png?v=4">
-<meta name="msapplication-config" content="/youtubetimeline/icon/browserconfig.xml?v=4">
-<meta name="theme-color" content="#e62117">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="View the entire history of any YouTube channel without scrolling forever." />
+    <meta name="author" content="Sam Leatherdale" />
+    <title>YouTube Timeline</title>
+    <!--Iconography-->
+    <link rel="apple-touch-icon" sizes="57x57" href="./icon/apple-touch-icon-57x57.png?v=4">
+    <link rel="apple-touch-icon" sizes="60x60" href="./icon/apple-touch-icon-60x60.png?v=4">
+    <link rel="apple-touch-icon" sizes="72x72" href="./icon/apple-touch-icon-72x72.png?v=4">
+    <link rel="apple-touch-icon" sizes="76x76" href="./icon/apple-touch-icon-76x76.png?v=4">
+    <link rel="apple-touch-icon" sizes="114x114" href="./icon/apple-touch-icon-114x114.png?v=4">
+    <link rel="apple-touch-icon" sizes="120x120" href="./icon/apple-touch-icon-120x120.png?v=4">
+    <link rel="apple-touch-icon" sizes="144x144" href="./icon/apple-touch-icon-144x144.png?v=4">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icon/apple-touch-icon-152x152.png?v=4">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon/apple-touch-icon-180x180.png?v=4">
+    <link rel="icon" type="image/png" href="./icon/favicon-32x32.png?v=4" sizes="32x32">
+    <link rel="icon" type="image/png" href="./icon/android-chrome-192x192.png?v=4" sizes="192x192">
+    <link rel="icon" type="image/png" href="./icon/favicon-96x96.png?v=4" sizes="96x96">
+    <link rel="icon" type="image/png" href="./icon/favicon-16x16.png?v=4" sizes="16x16">
+    <link rel="manifest" href="./icon/manifest.json?v=4">
+    <link rel="mask-icon" href="./icon/safari-pinned-tab.svg?v=4" color="#e62117">
+    <link rel="shortcut icon" href="./icon/favicon.ico?v=4">
+    <meta name="apple-mobile-web-app-title" content="YouTube Timeline">
+    <meta name="application-name" content="YouTube Timeline">
+    <meta name="msapplication-TileColor" content="#b91d47">
+    <meta name="msapplication-TileImage" content="./icon/mstile-144x144.png?v=4">
+    <meta name="msapplication-config" content="./icon/browserconfig.xml?v=4">
+    <meta name="theme-color" content="#e62117">
 
-<!--Site Verification-->
-<meta name="wot-verification" content="b4aed9acc3b46be09c61"/>
-<meta name="wot-verification" content="e018c11bc4419df518b7"/>
-<!--Google Analytics-->
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    <!--Google Analytics-->
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-76753203-1', 'auto');
-  ga('send', 'pageview');
+        ga('create', 'UA-76753203-1', 'auto');
+        ga('send', 'pageview');
 
-</script>
-<!--Facebook OpenGraph-->
-<meta property="og:url" content="https://samleatherdale.github.io/youtubetimeline/" />
-<meta property="og:title" content="YouTube Timeline" />
-<meta property="og:description" content="View the entire history of any YouTube channel without scrolling forever." />
-<meta property="og:site_name" content="YouTube Timeline" />
-<meta property="og:image" content="http://youtubetimeline.com/icon/opengraph-icon.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="fb:app_id" content="929549153810401" />
-<!--Twitter API-->
-<!--<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>-->
-<!--Twitter Cards-->
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:site" content="@YouTubeTimeline" />
-<meta name="twitter:title" content="YouTube Timeline" />
-<meta name="twitter:description" content="View the entire history of any YouTube channel without scrolling forever." />
-<meta name="twitter:image" content="http://youtubetimeline.com/icon/opengraph-icon.png" />
-<meta name="twitter:image:alt" content="YouTube Timeline Logo" />
-<!--Google API-->
-<!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
-<!--Google Snippet-->
-<meta itemprop="name" content="YouTube Timeline">
-<meta itemprop="image" content="http://youtubetimeline.com/icon/opengraph-icon.png">
-<meta itemprop="operatingSystem" content="Any">
-<meta itemprop="applicationCategory" content="Utilities">
-<meta itemprop="description" content="View the entire history of any YouTube channel without scrolling forever.">
+    </script>
+    <!--Facebook OpenGraph-->
+    <meta property="og:url" content="https://samleatherdale.github.io/youtubetimeline/" />
+    <meta property="og:title" content="YouTube Timeline" />
+    <meta property="og:description"
+        content="View the entire history of any YouTube channel without scrolling forever." />
+    <meta property="og:site_name" content="YouTube Timeline" />
+    <meta property="og:image" content="http://youtubetimeline.com/icon/opengraph-icon.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="fb:app_id" content="929549153810401" />
+    <!--Twitter API-->
+    <!--<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>-->
+    <!--Twitter Cards-->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@YouTubeTimeline" />
+    <meta name="twitter:title" content="YouTube Timeline" />
+    <meta name="twitter:description"
+        content="View the entire history of any YouTube channel without scrolling forever." />
+    <meta name="twitter:image" content="http://youtubetimeline.com/icon/opengraph-icon.png" />
+    <meta name="twitter:image:alt" content="YouTube Timeline Logo" />
+    <!--Google API-->
+    <!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
+    <!--Google Snippet-->
+    <meta itemprop="name" content="YouTube Timeline">
+    <meta itemprop="image" content="http://youtubetimeline.com/icon/opengraph-icon.png">
+    <meta itemprop="operatingSystem" content="Any">
+    <meta itemprop="applicationCategory" content="Utilities">
+    <meta itemprop="description" content="View the entire history of any YouTube channel without scrolling forever.">
 
-<!--Hosted Resources-->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
+    <!--Hosted Resources-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+    <!--Local Resources-->
+    <script src="./typescript/index.ts" type="module"></script>
+</head>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js" integrity="sha256-Gn7MUQono8LUxTfRA0WZzJgTua52Udm1Ifrk5421zkA=" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-<!--Local Resources-->
-<link rel="stylesheet" type="text/css" href="/youtubetimeline/third_party/bootstrap-social.css" />
-<link rel="stylesheet" type="text/css" href="/youtubetimeline/style.css?v=1496044979.4848" />
-
-<script src="/youtubetimeline/timeline.js?v=1496044979.4848"></script>
-<script src="/youtubetimeline/third_party/jquery-scrolltofixed-min.js"></script>
-<script src="/youtubetimeline/third_party/lscache.min.js"></script>
 <body data-spy="scroll" data-target="#timeline_navigation">
     <div id="modal_background"></div>
-    <!--Facebook SDK-->
-<!--<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.6&appId=929549153810401";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>-->
-<!--End Facebook SDK-->
-<header class="container-fluid" id="page_header">
-    <div class="header-title">
-        <a href="/youtubetimeline//"><h1 class="yt-red-dark">YouTube Timeline</h1></a>
-        <a href="https://webhost.wsi.tafensw.edu.au/bluemountains/sam.leatherdale1/wordpress_sam/" target="_blank"><h2>by Sam Leatherdale</h2></a>
-    </div>
 
-    <nav id="header_nav">
+    <header class="container-fluid" id="page_header">
+        <div class="header-title">
+            <h1 class="yt-red-dark">YouTube Timeline</h1>
+            <a href="https://samleatherdale.com" target="_blank">
+                <h2>by Sam Leatherdale</h2>
+            </a>
+        </div>
+
+        <nav id="header_nav">
             <ul class="nav nav-pills">
-                            <li role="presentation" class="active"><a href="/youtubetimeline/">Home</a></li>
-                            <li role="presentation" class=""><a href="/youtubetimeline/about">About</a></li>
-                        </ul>
-    </nav>
-
-    <div id="social_buttons">
-
-                <div id="twitter_button_container" class="social-button-container">
-
-                    <a href="https://twitter.com/YouTubeTimeline" target="_blank" class="btn btn-social-icon btn-twitter social-button-link">
-                        <span class="fa fa-twitter"></span>
-                    </a>
-<!--                    <a class="twitter-share-button"
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fsamleatherdale.github.io%2Fyoutubetimeline&text=Check+out+YouTube+Timeline%2C+which+lets+you+easily+view+the+complete+history+of+any+channel%27s+videos."
-                  data-size="default">
-                Share</a>-->
-
-                </div>
-
-                <div id="fb_button_container" class="social-button-container">
-
-                    <a href="https://www.facebook.com/YTTimeline" target="_blank" class="btn btn-social-icon btn-facebook social-button-link">
-                        <span class="fa fa-facebook"></span>
-                    </a>
-<!--                    <div class="fb-share-button" data-href="https://samleatherdale.github.io/youtubetimeline" data-layout="button" data-mobile-iframe="true"></div>-->
-
-                </div>
+                <li role="presentation" class="active"><a href="/">Home</a></li>
+                <li role="presentation" class=""><a href="/about">About</a></li>
+            </ul>
+        </nav>
 
 
-
-<!--                <div id="google_button_container" class="social-button-container">
-                    <div class="social-button-link">
-
-                    </div>
-                    <div class="g-plus" data-href="https://samleatherdale.github.io/youtubetimeline" data-action="share" data-annotation="none" data-expandTo="bottom" data-height="20"></div>
-
-                </div>-->
-
-
-    </div>
-
-<!--    <div id="header_navbar">
-
-
-
-
-    </div>-->
-
-
-</header>
+    </header>
     <div class="container-fluid main">
 
         <!--Welcome message-->
@@ -164,7 +112,10 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             <h4>Welcome to YouTube Timeline!</h4>
-            <p>Ever wanted to look at a channel's old videos but had to scroll through all the one's you've already watched? And once you did scroll down, you choose a video, only to have to scroll down all over again and lose your place? With YouTube Timeline, you can instantly jump to the year and month that you're interested in.</p>
+            <p>Ever wanted to look at a channel's old videos but had to scroll through all the one's you've already
+                watched? And once you did scroll down, you choose a video, only to have to scroll down all over again
+                and lose your place? With YouTube Timeline, you can instantly jump to the year and month that you're
+                interested in.</p>
         </div>
 
         <div id="scroll_top" title="Scroll to top">
@@ -178,18 +129,20 @@
         <!--Loading modal-->
         <div class="modal fade" tabindex="-1" role="dialog" id="session_restore_dialog">
             <div class="modal-dialog modal-sm" role="document">
-              <div class="modal-content">
-                  <div class="modal-body">We're restoring your last timeline&hellip;</div>
-              </div>
+                <div class="modal-content">
+                    <div class="modal-body">We're restoring your last timeline&hellip;</div>
+                </div>
             </div>
         </div>
 
-    	<div id="options_box">
+        <div id="options_box">
             <form id="form_channel_name">
-                <label for="input_channel_name">Enter a channel username to view a complete history of their videos:</label>
+                <label for="input_channel_name">Enter a channel username to view a complete history of their
+                    videos:</label>
                 <div class="input-group" id="input_group_channel_name">
-                    <span class="input-group-addon" id="addon_youtube_domain_user">http://www.youtube.com/user/</span>
-                    <input type="text" class="form-control" name="channel_name" id="input_channel_name" aria-describedby="addon_youtube_domain_user" placeholder="username" required />
+                    <span class="input-group-addon" id="addon_youtube_domain_user">https://www.youtube.com/user/</span>
+                    <input type="text" class="form-control" name="channel_name" id="input_channel_name"
+                        aria-describedby="addon_youtube_domain_user" placeholder="username" required />
                 </div>
                 <div>
                     <label for="input_video_title">Optionally, filter by video title as well:</label>
@@ -203,23 +156,27 @@
         </div>
 
         <div class="panel-group" id="channel_results" role="tablist" aria-multiselectable="true">
-          <div class="panel panel-info">
-            <div class="panel-heading" role="tab" id="channel_results_heading">
-              <h4 class="panel-title">
-                <a role="button" data-toggle="collapse" data-parent="#channel_results" href="#channel_results_collapse" aria-expanded="true" aria-controls="channel_results_collapse" >
-                  <span class="glyphicon glyphicon-chevron-down"></span><span id="channel_results_description"></span>
-                </a>
-              </h4>
-            </div>
-            <div id="channel_results_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="channel_results_heading">
-              <div class="panel-body" id="channel_results_body">
-                  <i id="channel_results_spinner" class="fa fa-spinner fa-pulse"></i>
-                  <div id="channel_result_container">
+            <div class="panel panel-info">
+                <div class="panel-heading" role="tab" id="channel_results_heading">
+                    <h4 class="panel-title">
+                        <a role="button" data-toggle="collapse" data-parent="#channel_results"
+                            href="#channel_results_collapse" aria-expanded="true"
+                            aria-controls="channel_results_collapse">
+                            <span class="glyphicon glyphicon-chevron-down"></span><span
+                                id="channel_results_description"></span>
+                        </a>
+                    </h4>
+                </div>
+                <div id="channel_results_collapse" class="panel-collapse collapse" role="tabpanel"
+                    aria-labelledby="channel_results_heading">
+                    <div class="panel-body" id="channel_results_body">
+                        <i id="channel_results_spinner" class="fa fa-spinner fa-pulse"></i>
+                        <div id="channel_result_container">
 
-                  </div>
-              </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
 
@@ -258,9 +215,11 @@
 
     </div>
     <footer class="footer">
-    <div class="container text-muted">
-        <p>YouTube Timeline is &copy; 2016 Sam Leatherdale. It is not affiliated with or endorsed by Google.</p> 
-        <p>The YouTube Timeline logo uses iconography from Font Awesome.</p>
-    </div>
-</footer></body>
+        <div class="container text-muted">
+            <p>YouTube Timeline is made by Sam Leatherdale. It is not affiliated with or endorsed by Google.</p>
+            <p>The YouTube Timeline logo uses iconography from Font Awesome.</p>
+        </div>
+    </footer>
+</body>
+
 </html>

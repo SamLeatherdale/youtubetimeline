@@ -1,2 +1,0 @@
-php compile.php
-pause

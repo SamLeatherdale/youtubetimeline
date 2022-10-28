@@ -1,3 +1,8 @@
+import moment from "moment";
+import lscache from "lscache";
+import { API_KEY } from "./globals";
+import {Video, VideoResponse} from "./classes";
+
 class CacheMonth {
     constructor() {
         this.videos = {};
@@ -8,7 +13,7 @@ class CacheMonth {
     retrievedAll: boolean
     nextPageToken: string
 }
-function retrieveVideos(channelID: string, publishedBefore: moment.Moment, publishedAfter: moment.Moment, pageNumber: number, callback: Function) {
+export function retrieveVideos(channelID: string, publishedBefore: moment.Moment, publishedAfter: moment.Moment, pageNumber: number, callback: Function) {
     //Try the cache
     let VIDEOS_PER_PAGE = 50;
     let cacheKey = channelID + "/" + publishedAfter.format("YYYY/MM");
@@ -51,7 +56,7 @@ function retrieveVideos(channelID: string, publishedBefore: moment.Moment, publi
             publishedBefore: publishedBefore.toISOString(),
             order: "date",
             fields: "nextPageToken,pageInfo/totalResults,items/id/videoId,items/snippet/publishedAt,items/snippet/title,items/snippet/thumbnails/medium/url",
-            key: apiKey
+            key: API_KEY
         };
         if (refreshNextPage) {
             values.pageToken = cacheMonth.nextPageToken;

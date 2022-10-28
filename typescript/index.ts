@@ -1,0 +1,5 @@
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-social"
+import "font-awesome/css/font-awesome.min.css"
+import "../style.css"
+import "./main"

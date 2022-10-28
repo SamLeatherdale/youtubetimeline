@@ -1,5 +1,10 @@
 /// <reference path="main.ts" />
-function showTutorial() {
+
+import moment from "moment";
+import { session, APPLICATION_VERSION } from "./globals";
+import { FinaliseRestoreSession, getVideos, processChannel, searchChannels } from "./main";
+
+export function showTutorial() {
     if (session.hasLocalStorage) {
         if (!localStorage.getItem("applicationVersion") || localStorage.getItem("applicationVersion") != APPLICATION_VERSION) {
             sessionStorage.clear();
@@ -14,15 +19,15 @@ function showTutorial() {
 };
 
 /*
- * Utility functions *
+ * Utility export functions *
  */
 
-function getMomentFromTag(tag) {
+export function getMomentFromTag(tag) {
     var month = moment.utc(tag, "YYYY-MM");
     return month;
 };
 
-function addCommas(nStr) {
+export function addCommas(nStr) {
     nStr += '';
     var x = nStr.split('.');
     var x1 = x[0];
@@ -34,13 +39,13 @@ function addCommas(nStr) {
     return x1 + x2;
 };
 
-function showMessage(message, level) {
+export function showMessage(message, level) {
     $("#error_messages").append(
         "<div class='alert alert-" + level + "' role='alert'>" + message + "</div>"
     );
 };
-/*Session function from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API*/
-function storageAvailable(type: string): boolean {
+/*Session export function from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API*/
+export function storageAvailable(type: string): boolean {
     try {
         var storage = window[type],
             x = '__storage_test__';
@@ -53,8 +58,8 @@ function storageAvailable(type: string): boolean {
     }
 };
 
-/*Get URL parameter function from http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144*/
-function getParameterByName(name: string) {
+/*Get URL parameter export function from https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144*/
+export function getParameterByName(name: string) {
     var url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
@@ -65,34 +70,34 @@ function getParameterByName(name: string) {
 }
 
 /*
- * jQuery functions/Event handlers
+ * jQuery export functions/Event handlers
  */
 
-function onResize() {
+export function onResize() {
     $("body").css("margin-bottom", $("footer").outerHeight(true));
     if ($(window).width() >= 768 && $("body").hasClass("timeline-modal-open")) {
         $("#show_timeline_navigation").click();
     }
 };
 
-$.fn.hideShowPanel = function(callback) {
-    return $(this).each(function() {
+export function hideShowPanel(el: JQuery, callback: () => void) {
+    return el.each(function() {
         if ($(this).hasClass("in")) {
             $(this).on("hidden.bs.collapse", function(e) {
                 callback();
-                $(e.delegateTarget).collapseChevron("show");
+                collapseChevron($(e.delegateTarget as unknown as JQuery<HTMLElement>), "show");
                 $(this).off("hidden.bs.collapse");
             });
-            $(this).collapseChevron("hide");
+            collapseChevron($(this), "hide");
         }
         else {
             callback();
-            $(this).collapseChevron("show");
+            collapseChevron($(this), "show");
         }
     });
 };
 
-function onDropdownChevron(event) {
+export function onDropdownChevron() {
     var icon_container = $(this).children(".glyphicon");
     if (icon_container.hasClass("glyphicon-chevron-down")) {
         icon_container.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
@@ -102,20 +107,20 @@ function onDropdownChevron(event) {
     }
 };
 
-$.fn.collapseChevron = function(action: string) {
-    return $(this).each(function() {
-        var icon_container = $(this).parent().children(".panel-heading").find(".glyphicon");
+export function collapseChevron(el: JQuery, action: "toggle" | "show" | "hide") {
+    return el.each(function() {
+        var icon_container = el.parent().children(".panel-heading").find(".glyphicon");
         if (action == "show") {
             icon_container.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
         }
         else if (action == "hide") {
             icon_container.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
         }
-        $(this).collapse(action);
+        el.collapse(action);
     });
 };
 
-function onShowMonth() {
+export function onShowMonth() {
     let parent = $(this).parent();
     let month = parent.attr("data-month");
     let videoMonth = getMomentFromTag(parent.attr("data-month"));
@@ -134,12 +139,12 @@ function onShowMonth() {
     getVideos(parent, 1);
 };
 
-function getMoreVideos() {
+export function getMoreVideos() {
     console.log($(this).attr("data-page-number"));
     getVideos($(this).parents(".timeline-month"), parseInt($(this).attr("data-page-number")));
 }
 
-function onHideMonth() {
+export function onHideMonth() {
     let parent = $(this).parent();
     let month = parent.attr("data-month");
     // if (session.hasSessionStorage) {
@@ -150,25 +155,25 @@ function onHideMonth() {
     // }
 };
 
-function onExpandMonth() {
+export function onExpandMonth() {
     $(this).on('show.bs.collapse', onShowMonth);
     $(this).on('hide.bs.collapse', onHideMonth);
 };
 
-function ScrollToMonth() {
+export function ScrollToMonth() {
     if ($(this).hasClass("timeline-month")) {
-        $(this).goTo();
+        goTo($(this));
     }
     else {
-        $(this).parents(".timeline-month").goTo();
+        goTo($(this).parents(".timeline-month"));
     }
 };
 
-function SelectChannel(event: JQueryEventObject) {
+export function SelectChannel(event) {
     event.preventDefault();
     let channelID: string = $(this).parent().attr("data-channel-ID");
     console.log(channelID);
-    $("#channel_results_collapse").collapseChevron("hide");
+    collapseChevron($("#channel_results_collapse"), "hide");
     if (channelID === $("#input_channel_ID").val()) {
         return;
     }
@@ -176,38 +181,38 @@ function SelectChannel(event: JQueryEventObject) {
     $(this).addClass("active");
     $("#input_channel_ID").val(channelID);
     processChannel(channelID, false);
-};
+}
 
-function SearchChannelsDropdown() {
+export function SearchChannelsDropdown() {
     if (!session.channelSearchCompleted) {
         session.channelSearchCompleted = true;
         searchChannels(session.channelName, false);
     }
 };
 
-function ExpandAll() {
+export function ExpandAll() {
     var parent_body = $(this).parent();
-    parent_body.find(".panel-collapse").collapseChevron("show");
+    collapseChevron(parent_body.find(".panel-collapse"), "show");
 };
 
-function CollapseAll() {
+export function CollapseAll() {
     var parent_body = $(this).parent();
-    parent_body.find(".panel-collapse").collapseChevron("hide");
+    collapseChevron(parent_body.find(".panel-collapse"), "hide");
 };
 
-function JumpToYear(event: JQueryEventObject) {
+export function JumpToYear(event) {
     event.preventDefault();
-    $($(this).attr('href')).goTo();
+    goTo($($(this).attr('href')));
     CloseMobileNavigation();
 };
 
-function CloseMobileNavigation() {
+export function CloseMobileNavigation() {
     if ($("body").hasClass("timeline-modal-open")) {
         $("#show_timeline_navigation").click();
     }
 }
 
-function ToggleMobileNavigation() {
+export function ToggleMobileNavigation() {
     var button = $(this);
     var timeline_nav = $('#timeline_navigation_mobile');
     if (button.attr("data-status") == "hidden") {
@@ -234,7 +239,7 @@ function ToggleMobileNavigation() {
     }
 };
 
-function BindRestoreSessionHandler() {
+export function BindRestoreSessionHandler() {
     $("#session_restore_dialog").modal({
         backdrop: "static",
         keyboard: false,
@@ -243,8 +248,8 @@ function BindRestoreSessionHandler() {
     $(document).one({"restore-complete": FinaliseRestoreSession});
 };
 
-function disableExpand() {
-    $(this).collapseChevron("hide");
+export function disableExpand() {
+    collapseChevron($(this), "hide");
     $(this).css("display", "none");
     let toggle_link = $(this).parent().children(".panel-heading").find("a");
     toggle_link.off();
@@ -253,9 +258,8 @@ function disableExpand() {
     toggle_link.children('.glyphicon').css('display', 'none');
 };
 
-$.fn.goTo = function() {
+export function goTo(el: JQuery) {
     $('html, body').animate({
-        scrollTop: $(this).offset().top + 'px'
+        scrollTop: el.offset().top + 'px'
     }, 'fast');
-    return this;
 };
