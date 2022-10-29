@@ -40,5 +40,16 @@
     "jquery": {
       "global": "$"
     }
+  },
+  "pwaManifest": {
+    "name": "YouTube Timeline",
+    "shortName": "YT Timeline",
+    "startURL": "./",
+    "theme": "#e62117",
+    "generateIconOptions": {
+      "baseIcon": "./icon/icon.svg",
+      "sizes": [192, 384, 512],
+      "genFavicons": true
+    }
   }
 }
